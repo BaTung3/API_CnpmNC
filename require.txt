@@ -1,0 +1,4 @@
+
+express-generator
+express-jade
+"mysql": "^2.18.1",
