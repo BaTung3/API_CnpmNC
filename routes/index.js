@@ -628,12 +628,40 @@ router.get("/student", (req, res) => {
 // ThongKe req.headers.diaDiem
 
 router.get("/ThongKe", (req, res, next) => {
-  console.log("partnerID" + req.headers.diaDiem);
+  console.log("partnerID" + req.headers.PartnerID);
 
   dbcon.query(
     "select hoa_don.ID_HOA_DON as IDhoadon, home.ID_HOME as MaNha, home.TEN as TenHome, (select sum(SO_LUONG_PHONG) from hoa_don,home where ID_ROOMTYPE in (select ID_ROOMTYPE from roomtype,home where roomtype.ID_HOME = home.ID_HOME AND home.ID_HOME = MaNha ) and home.ID_HOME = MaNha)as SoPhong ,((count(ID_USER)) + (select count(*) - count(ID_USER) from chi_tiet_lien_he where chi_tiet_lien_he.ID_USER IS NULL and chi_tiet_lien_he.ID_HOA_DON = IDhoadon)) as SoKhach ,(select sum(FINAL_PRICE) AS Final_price from hoa_don,home where ID_ROOMTYPE in (select ID_ROOMTYPE from roomtype,home where roomtype.ID_HOME = home.ID_HOME AND home.ID_HOME = MaNha) and home.ID_HOME = MaNha)as DoanhThu from chi_tiet_lien_he,home,hoa_don,roomtype where home.PARTNER_ID = '" +
       req.headers.PartnerID +
       " and chi_tiet_lien_he.ID_HOA_DON = hoa_don.ID_HOA_DON and hoa_don.ID_ROOMTYPE = roomtype.ID_ROOMTYPE and roomtype.ID_HOME = home.ID_HOME group by (select chi_tiet_lien_he.ID_HOA_DON from chi_tiet_lien_he,hoa_don WHERE chi_tiet_lien_he.ID_HOA_DON = hoa_don.ID_HOA_DON and hoa_don.ID_ROOMTYPE = ( select roomtype.ID_ROOMTYPE from hoa_don, roomtype,home where hoa_don.ID_ROOMTYPE = roomtype.ID_ROOMTYPE and roomtype.ID_HOME = home.ID_HOME and home.TEN = TenHome) );'",
+    function (err, result, filesd) {
+      if (err) throw console.log(err);
+      res.json(result);
+    }
+  );
+});
+
+// ThongKeById req.headers.diaDiem
+
+router.get("/ThongKebyID", (req, res, next) => {
+  console.log(
+    "partnerID" + req.headers.PartnerID + "HomeID" + req.headers.HomeID
+  );
+
+  dbcon.query(
+    "select hoa_don.ID_HOA_DON as IDhoadon, home.ID_HOME as MaNha, home.TEN as TenHome, (select sum(SO_LUONG_PHONG) from hoa_don,home where ID_ROOMTYPE in (select ID_ROOMTYPE from roomtype,home where roomtype.ID_HOME = home.ID_HOME AND home.ID_HOME ='" +
+      req.headers.HomeID +
+      ") and home.ID_HOME ='" +
+      req.headers.HomeID +
+      ")as SoPhong ,((count(ID_USER)) + (select count(*) - count(ID_USER) from chi_tiet_lien_he where chi_tiet_lien_he.ID_USER IS NULL and chi_tiet_lien_he.ID_HOA_DON = IDhoadon)) as SoKhach ,(select sum(FINAL_PRICE) AS Final_price from hoa_don,home where ID_ROOMTYPE in (select ID_ROOMTYPE from roomtype,home where roomtype.ID_HOME = home.ID_HOME AND home.ID_HOME ='" +
+      req.headers.HomeID +
+      ") and home.ID_HOME ='" +
+      req.headers.HomeID +
+      ")as DoanhThu from chi_tiet_lien_he,home,hoa_don,roomtype where home.PARTNER_ID = '" +
+      req.headers.PartnerID +
+      " and chi_tiet_lien_he.ID_HOA_DON = hoa_don.ID_HOA_DON and hoa_don.ID_ROOMTYPE = roomtype.ID_ROOMTYPE and roomtype.ID_HOME = home.ID_HOME group by (select chi_tiet_lien_he.ID_HOA_DON from chi_tiet_lien_he,hoa_don WHERE chi_tiet_lien_he.ID_HOA_DON = hoa_don.ID_HOA_DON and hoa_don.ID_ROOMTYPE = ( select roomtype.ID_ROOMTYPE from hoa_don, roomtype,home where hoa_don.ID_ROOMTYPE = roomtype.ID_ROOMTYPE and roomtype.ID_HOME = home.ID_HOME and home.ID_HOME ='" +
+      req.headers.HomeID +
+      ") );'",
     function (err, result, filesd) {
       if (err) throw console.log(err);
       res.json(result);
